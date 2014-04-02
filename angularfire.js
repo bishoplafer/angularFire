@@ -11,7 +11,7 @@
 
 "use strict";
 
-(function() {
+(function(angular) {
 
   var AngularFire, AngularFireAuth;
 
@@ -54,18 +54,15 @@
           }
         } else {
           // input is an angularFire instance
-          var index = input.$getIndex();
-          if (index.length > 0) {
-            for (var i = 0; i < index.length; i++) {
-              var val = input[index[i]];
-              if (val) {
-                if (angular.isObject(val)) {
-                  val.$id = index[i];
-                }
-                sorted.push(val);
+          angular.forEach(input.$getIndex(), function(key) {
+            var val = input[key];
+            if (val !== null) {
+              if (angular.isObject(val)) {
+                val.$id = key;
               }
+              sorted.push(val);
             }
-          }
+          });
         }
       }
       return sorted;
@@ -459,7 +456,7 @@
         // Store the priority of the current property as "$priority". Changing
         // the value of this property will also update the priority of the
         // object (see _parseObject).
-        if (!_isPrimitive(val) && snapshot.getPriority() !== null) {
+        if (angular.isObject(val) && snapshot.getPriority() !== null) {
           val.$priority = snapshot.getPriority();
         }
         self._updateModel(key, val);
@@ -488,10 +485,6 @@
         // Remove from local model.
         self._updateModel(key, null);
       });
-
-      function _isPrimitive(v) {
-        return v === null || typeof(v) !== 'object';
-      }
 
       function _initialLoad(value) {
         // Call handlers for the "loaded" event.
@@ -530,7 +523,7 @@
       self._fRef.on('value', function(snap) {
         // primitive handling
         var value = snap.val();
-        if( _isPrimitive(value) ) {
+        if(!angular.isObject(value) ) {
           value = handleNullValues(value);
           self._updatePrimitive(value);
         }
@@ -647,8 +640,9 @@
       var self = this;
       if( self._loaded && ['child_added', 'loaded', 'value'].indexOf(evt) > -1 ) {
         self._timeout(function() {
-          var parsedValue = self._object.hasOwnProperty('$value')?
-            self._object.$value : self._parseObject(self._object);
+          var parsedValue = angular.isObject(self._object)? self._parseObject(self._object) : self._object;
+//          var parsedValue = self._object.hasOwnProperty('$value')?
+//            self._object.$value : self._parseObject(self._object);
           switch(evt) {
           case 'loaded':
             callback(parsedValue);
@@ -1015,4 +1009,4 @@
       }
     }
   };
-})();
+})(angular);
