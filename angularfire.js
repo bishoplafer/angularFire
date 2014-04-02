@@ -143,7 +143,7 @@
     // point between a particular model and a Firebase location.
     construct: function() {
       var self = this;
-      var object = {};
+      var object = [];
 
       // Set the $id val equal to the Firebase reference's name() function.
       object.$id = self._fRef.ref().name();
