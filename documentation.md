@@ -128,7 +128,7 @@ The record will then be sorted by it's ID (normally this means appending it to t
 of the list), exactly as if you had called `push()`.
 
 ``` js
-items.push()
+items.splice(0, 1, {foo:'bar'}); // oops, goes at the end :(
 ```
 
 #### $priority
